@@ -454,7 +454,7 @@ class Game:
     def main_menu_loop(self):
         self.play_music('menu')
         continue_button = pygame.Rect(SCREEN_WIDTH/2-150, SCREEN_HEIGHT/2-60, 300, 50); select_button = pygame.Rect(SCREEN_WIDTH/2-150, SCREEN_HEIGHT/2, 300, 50); quit_button = pygame.Rect(SCREEN_WIDTH/2-150, SCREEN_HEIGHT/2+60, 300, 50)
-        while self.state == 'main_menu' and self.running: # Add self.running to the condition
+        while self.state == 'main_menu' and self.running: # Added self.running
             self.screen.fill(DARK_GREY); title_surf = pygame.font.Font(None, 72).render(GAME_TITLE, True, WHITE)
             self.screen.blit(title_surf, title_surf.get_rect(center=(SCREEN_WIDTH/2, SCREEN_HEIGHT/4)))
             credits_text = "Tvurci: Tomas S., Benjamin D., Adam V., Nikola D."
@@ -479,7 +479,7 @@ class Game:
         start_x = (SCREEN_WIDTH - (cols*btn_width + (cols-1)*spacing))/2; start_y = (SCREEN_HEIGHT - (rows*btn_height + (rows-1)*spacing))/2
         level_buttons = [pygame.Rect(start_x + (i % cols)*(btn_width+spacing), start_y + (i // cols)*(btn_height+spacing), btn_width, btn_height) for i in range(len(LEVELS))]
         back_button = pygame.Rect(20, SCREEN_HEIGHT - 70, 150, 50)
-        while self.state == 'level_select' and self.running: # Add self.running to the condition
+        while self.state == 'level_select' and self.running: # Added self.running
             self.screen.fill(DARK_GREY); title_surf = self.font.render("Výběr úrovně", True, WHITE); self.screen.blit(title_surf, title_surf.get_rect(center=(SCREEN_WIDTH/2, 50)))
             mouse_pos = pygame.mouse.get_pos()
             for i, rect in enumerate(level_buttons):
@@ -498,64 +498,78 @@ class Game:
             pygame.display.flip(); self.clock.tick(FPS)
             
     def game_loop(self):
-        while self.state == 'in_game' and self.running: # Add self.running to the condition
+        while self.state == 'in_game' and self.running: # Added self.running
             self.events(); self.update(); self.draw()
 
     def events(self):
         for event in pygame.event.get():
-            if event.type == pygame.QUIT: self.running = False
+            if event.type == pygame.QUIT:
+                self.running = False
+                self.state = 'quit' # Ensure state is also set to 'quit'
             
             # Rotation with 'R' key
             if event.type == pygame.KEYDOWN and event.key == pygame.K_r:
                 mouse_pos = pygame.mouse.get_pos()
                 for sprite in self.all_sprites:
-                    # Check if the mouse is over a rotatable item (Mirror or BeamSplitter)
                     if isinstance(sprite, (Mirror, BeamSplitter)) and sprite.rect.collidepoint(mouse_pos):
                         sprite.rotate()
                         break # Stop after rotating one sprite
 
             # Rotation with right mouse click
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 3: # 3 is for right-click
-                pos = event.pos # Use event.pos directly as it's the click position
+                pos = event.pos
                 for sprite in self.all_sprites:
-                    # Check if the right-click was on a rotatable item (Mirror or BeamSplitter)
                     if isinstance(sprite, (Mirror, BeamSplitter)) and sprite.rect.collidepoint(pos):
                         sprite.rotate()
                         break # Stop after rotating one sprite
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 pos = event.pos
-                if self.level_complete:
-                    if hasattr(self, 'next_level_button_rect') and self.next_level_button_rect.collidepoint(pos):
-                        self.current_level_index += 1
-                        if self.current_level_index < len(LEVELS): self.load_level(self.current_level_index)
-                        else: self.state = 'main_menu'
-                    return
                 panel_x_start = GRID_WIDTH * TILE_SIZE
+
+                # Handle clicks within the info panel
                 if pos[0] > panel_x_start:
+                    # Check for "Back to Menu" button first, as it should always be clickable from info panel
+                    if hasattr(self, 'back_to_menu_button_rect') and self.back_to_menu_button_rect.collidepoint(pos):
+                        self.state = 'main_menu'
+                        return # Exit event loop as action is handled
+
+                    # Handle level completion buttons
+                    if self.level_complete:
+                        if hasattr(self, 'next_level_button_rect') and self.next_level_button_rect.collidepoint(pos):
+                            self.current_level_index += 1
+                            if self.current_level_index < len(LEVELS):
+                                self.load_level(self.current_level_index)
+                            else:
+                                self.state = 'main_menu' # Go to main menu if no more levels
+                        return # Exit event loop after handling level complete buttons
+
+                    # Handle other info panel buttons (Start, Reset, Item Selection)
                     if hasattr(self, 'start_button_rect') and self.start_button_rect.collidepoint(pos) and self.tries_left > 0 and not self.laser_is_on:
-                        self.tries_left -= 1; self.laser_is_on = True; self.laser_on_time = pygame.time.get_ticks()
+                        self.tries_left -= 1
+                        self.laser_is_on = True
+                        self.laser_on_time = pygame.time.get_ticks()
                         if self.laser_start_sound: self.laser_start_sound.play()
                         self.calculate_laser_paths()
-                    if hasattr(self, 'reset_button_rect') and self.reset_button_rect.collidepoint(pos): self.load_level(self.current_level_index)
-                    if hasattr(self, 'mirror_icon_rect') and self.mirror_icon_rect.collidepoint(pos): self.selected_item = 'mirror'
-                    if hasattr(self, 'splitter_icon_rect') and self.splitter_icon_rect.collidepoint(pos): self.selected_item = 'splitter'
-                    return
-                # This part handles placing items with left click (button == 1)
+                    elif hasattr(self, 'reset_button_rect') and self.reset_button_rect.collidepoint(pos):
+                        self.load_level(self.current_level_index)
+                    elif hasattr(self, 'mirror_icon_rect') and self.mirror_icon_rect.collidepoint(pos):
+                        self.selected_item = 'mirror'
+                    elif hasattr(self, 'splitter_icon_rect') and self.splitter_icon_rect.collidepoint(pos):
+                        self.selected_item = 'splitter'
+                    return # Exit event loop after handling info panel buttons
+
+                # Handle placing items with left click (button == 1) on the game grid
                 if event.button == 1:
                     grid_x, grid_y = pos[0] // TILE_SIZE, pos[1] // TILE_SIZE
-                    clicked_sprite = next((s for s in self.all_sprites if s.rect.collidepoint(pos)), None)
-                    if clicked_sprite is None:
-                        if self.selected_item == 'mirror' and self.placeable_mirrors_count > 0:
-                            # Ensure you're not placing on a non-empty tile
-                            existing_sprite = next((s for s in self.all_sprites if s.rect.topleft == (grid_x * TILE_SIZE, grid_y * TILE_SIZE)), None)
-                            if existing_sprite is None:
-                                self.all_sprites.add(Mirror(grid_x * TILE_SIZE, grid_y * Tile_SIZE, True))
+                    # Ensure the click is within the game grid boundaries, not the info panel area
+                    if grid_x < GRID_WIDTH and grid_y < GRID_HEIGHT:
+                        clicked_sprite = next((s for s in self.all_sprites if s.rect.collidepoint(pos)), None)
+                        if clicked_sprite is None: # Only place if no sprite is already there
+                            if self.selected_item == 'mirror' and self.placeable_mirrors_count > 0:
+                                self.all_sprites.add(Mirror(grid_x * TILE_SIZE, grid_y * TILE_SIZE, True)) # Fixed Tile_SIZE typo
                                 self.placeable_mirrors_count -= 1
-                        elif self.selected_item == 'splitter' and self.placeable_splitters_count > 0:
-                            # Ensure you're not placing on a non-empty tile
-                            existing_sprite = next((s for s in self.all_sprites if s.rect.topleft == (grid_x * TILE_SIZE, grid_y * TILE_SIZE)), None)
-                            if existing_sprite is None:
+                            elif self.selected_item == 'splitter' and self.placeable_splitters_count > 0:
                                 self.all_sprites.add(BeamSplitter(grid_x * TILE_SIZE, grid_y * TILE_SIZE, True))
                                 self.placeable_splitters_count -= 1
     
@@ -587,33 +601,68 @@ class Game:
     def draw_info_panel(self):
         panel_rect = pygame.Rect(GRID_WIDTH * TILE_SIZE, 0, INFO_PANEL_WIDTH, SCREEN_HEIGHT)
         pygame.draw.rect(self.screen, DARK_GREY, panel_rect)
-        level_text = self.font.render(f"Level {self.current_level_index + 1}", True, WHITE); self.screen.blit(level_text, (panel_rect.x + 20, 20))
-        inventory_text = self.small_font.render("Inventář:", True, WHITE); self.screen.blit(inventory_text, (panel_rect.x + 20, 80))
+        
+        # Level info
+        level_text = self.font.render(f"Level {self.current_level_index + 1}", True, WHITE)
+        self.screen.blit(level_text, (panel_rect.x + 20, 20))
+        
+        # Inventory
+        inventory_text = self.small_font.render("Inventář:", True, WHITE)
+        self.screen.blit(inventory_text, (panel_rect.x + 20, 80))
+        
         self.mirror_icon_rect = pygame.Rect(panel_rect.x + 20, 110, TILE_SIZE, TILE_SIZE)
         if self.selected_item == 'mirror': pygame.draw.rect(self.screen, SELECTED_ITEM_COLOR, self.mirror_icon_rect, 3)
         self.screen.blit(self.mirror_icon, (self.mirror_icon_rect.x + 8, self.mirror_icon_rect.y + 8))
-        count_text_m = self.font.render(f"x {self.placeable_mirrors_count}", True, WHITE); self.screen.blit(count_text_m, (panel_rect.x + 80, 115))
+        count_text_m = self.font.render(f"x {self.placeable_mirrors_count}", True, WHITE)
+        self.screen.blit(count_text_m, (panel_rect.x + 80, 115))
+        
         self.splitter_icon_rect = pygame.Rect(panel_rect.x + 20, 170, TILE_SIZE, TILE_SIZE)
         if self.selected_item == 'splitter': pygame.draw.rect(self.screen, SELECTED_ITEM_COLOR, self.splitter_icon_rect, 3)
         self.screen.blit(self.splitter_icon, (self.splitter_icon_rect.x + 8, self.splitter_icon_rect.y + 8))
-        count_text_s = self.font.render(f"x {self.placeable_splitters_count}", True, WHITE); self.screen.blit(count_text_s, (panel_rect.x + 80, 175))
-        tries_text = self.font.render(f"Pokusy: {self.tries_left}", True, WHITE); self.screen.blit(tries_text, (panel_rect.x + 20, 240))
+        count_text_s = self.font.render(f"x {self.placeable_splitters_count}", True, WHITE)
+        self.screen.blit(count_text_s, (panel_rect.x + 80, 175))
+
+        # Back to Menu Button (positioned above other action buttons)
         mouse_pos = pygame.mouse.get_pos()
-        self.start_button_rect = pygame.Rect(panel_rect.x + 20, 290, 160, 50); self.reset_button_rect = pygame.Rect(panel_rect.x + 20, 360, 160, 50)
+        self.back_to_menu_button_rect = pygame.Rect(panel_rect.x + 20, 500, 160, 50) # New position
+        back_button_color = BUTTON_HOVER_COLOR if self.back_to_menu_button_rect.collidepoint(mouse_pos) else BUTTON_COLOR
+        pygame.draw.rect(self.screen, back_button_color, self.back_to_menu_button_rect)
+        back_text_surf = self.small_font.render("Do menu", True, WHITE)
+        self.screen.blit(back_text_surf, back_text_surf.get_rect(center=self.back_to_menu_button_rect.center))
+
+        # Tries left
+        tries_text = self.font.render(f"Pokusy: {self.tries_left}", True, WHITE)
+        self.screen.blit(tries_text, (panel_rect.x + 20, 300)) # Shifted down
+
+        # Start and Reset buttons
+        self.start_button_rect = pygame.Rect(panel_rect.x + 20, 350, 160, 50) # Shifted down
         start_color = BUTTON_HOVER_COLOR if self.start_button_rect.collidepoint(mouse_pos) and self.tries_left > 0 and not self.laser_is_on else BUTTON_COLOR if self.tries_left > 0 and not self.laser_is_on else LOCKED_BUTTON_COLOR
-        pygame.draw.rect(self.screen, start_color, self.start_button_rect); start_text_surf = self.small_font.render("SPUSTIT LASER", True, WHITE)
+        pygame.draw.rect(self.screen, start_color, self.start_button_rect)
+        start_text_surf = self.small_font.render("SPUSTIT LASER", True, WHITE)
         self.screen.blit(start_text_surf, start_text_surf.get_rect(center=self.start_button_rect.center))
+        
+        self.reset_button_rect = pygame.Rect(panel_rect.x + 20, 410, 160, 50) # Shifted down
         reset_color = BUTTON_HOVER_COLOR if self.reset_button_rect.collidepoint(mouse_pos) else BUTTON_COLOR
-        pygame.draw.rect(self.screen, reset_color, self.reset_button_rect); reset_text_surf = self.small_font.render("RESTART", True, WHITE)
+        pygame.draw.rect(self.screen, reset_color, self.reset_button_rect)
+        reset_text_surf = self.small_font.render("RESTART", True, WHITE)
         self.screen.blit(reset_text_surf, reset_text_surf.get_rect(center=self.reset_button_rect.center))
+        
+        # Game state messages (out of tries, level complete)
         if self.tries_left == 0 and not self.level_complete and not self.laser_is_on:
-            lose_text = self.font.render("Došly pokusy!", True, RED); self.screen.blit(lose_text, (panel_rect.x + 20, 420))
+            lose_text = self.font.render("Došly pokusy!", True, RED)
+            self.screen.blit(lose_text, (panel_rect.x + 20, 470)) # Shifted down
+        
         if self.level_complete:
-            msg_text = "Level splněn!" if self.current_level_index + 1 < len(LEVELS) else "Vše splněno!"; button_text = "Další level" if self.current_level_index + 1 < len(LEVELS) else "Do menu"
-            msg_surf = self.font.render(msg_text, True, GREEN); self.screen.blit(msg_surf, (panel_rect.x + 20, 450))
-            self.next_level_button_rect = pygame.Rect(panel_rect.x + 20, 500, 160, 50)
+            msg_text = "Level splněn!" if self.current_level_index + 1 < len(LEVELS) else "Vše splněno!"
+            button_text = "Další level" if self.current_level_index + 1 < len(LEVELS) else "Do menu"
+            
+            msg_surf = self.font.render(msg_text, True, GREEN)
+            self.screen.blit(msg_surf, (panel_rect.x + 20, 500)) # Shifted down
+            
+            self.next_level_button_rect = pygame.Rect(panel_rect.x + 20, 520, 160, 50) # Shifted down
             pygame.draw.rect(self.screen, GREEN, self.next_level_button_rect)
-            btn_surf = self.small_font.render(button_text, True, BLACK); btn_rect = btn_surf.get_rect(center=self.next_level_button_rect.center)
+            btn_surf = self.small_font.render(button_text, True, BLACK)
+            btn_rect = btn_surf.get_rect(center=self.next_level_button_rect.center)
             self.screen.blit(btn_surf, btn_rect)
 
 if __name__ == '__main__':
