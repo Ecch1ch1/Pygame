@@ -127,7 +127,7 @@ W W         W W
 W W         W W
 W W WWWWWWWWW W
 W W           W
-W WWWWWWWWW   W
+W WWWWWWWWWWW   W
 W W       W   W
 W W       W T W
 W W       W   W
@@ -340,6 +340,14 @@ class Game:
         self.clock = pygame.time.Clock(); self.font = pygame.font.Font(None, 36); self.small_font = pygame.font.Font(None, 28); self.level_select_font = pygame.font.Font(None, 48); self.credits_font = pygame.font.Font(None, 18)
         self.running = True; self.state = 'main_menu'
         self.laser_is_on = False; self.all_sprites = pygame.sprite.Group(); self.mirrors = pygame.sprite.Group(); self.targets = pygame.sprite.Group()
+        
+        # Define a master volume for the entire game (0.0 to 1.0)
+        self.master_volume = 0.2
+
+        # Set music volume using the master volume
+        pygame.mixer.music.set_volume(self.master_volume)
+
+        # Now load assets and progress (which depend on master_volume)
         self.load_assets(); self.load_progress()
         self.selected_item = 'mirror'
 
@@ -350,14 +358,25 @@ class Game:
         except pygame.error: self.splitter_icon = pygame.Surface((32,32)); self.splitter_icon.fill(RED)
         self.target_spritesheet = Spritesheet('target_spritesheet.png')
         self.menu_music_loaded = self.load_music_track('menu_music.mp3'); self.game_music_loaded = self.load_music_track('game_music.mp3')
-        self.laser_start_sound = self.load_sound('laser_start.mp3'); self.mirror_hit_sound = self.load_sound('mirror_hit.mp3')
-        self.target_lit_sound = self.load_sound('target_lit.mp3'); self.victory_sound = self.load_sound('victory.mp3')
+        
+        # Load sound effects with the master volume applied
+        self.laser_start_sound = self.load_sound('laser_start.mp3')
+        self.mirror_hit_sound = self.load_sound('mirror_hit.mp3')
+        self.target_lit_sound = self.load_sound('target_lit.mp3')
+        self.victory_sound = self.load_sound('victory.mp3')
+
     def load_music_track(self, filename):
         try: pygame.mixer.music.load(filename); return True
         except pygame.error: print(f"Varování: Hudba '{filename}' nenalezena."); return False
+        
     def load_sound(self, filename):
-        try: return pygame.mixer.Sound(filename)
-        except pygame.error: print(f"Varování: Zvuk '{filename}' nenalezen."); return None
+        try: 
+            sound = pygame.mixer.Sound(filename)
+            sound.set_volume(self.master_volume) # Apply master volume to SFX
+            return sound
+        except pygame.error: 
+            print(f"Varování: Zvuk '{filename}' nenalezen."); return None
+            
     def load_progress(self):
         try:
             with open('progress.txt', 'r') as f: self.highest_unlocked_level = int(f.read())
@@ -622,26 +641,19 @@ class Game:
         count_text_s = self.font.render(f"x {self.placeable_splitters_count}", True, WHITE)
         self.screen.blit(count_text_s, (panel_rect.x + 80, 175))
 
-        # Back to Menu Button (positioned above other action buttons)
-        mouse_pos = pygame.mouse.get_pos()
-        self.back_to_menu_button_rect = pygame.Rect(panel_rect.x + 20, 500, 160, 50) # New position
-        back_button_color = BUTTON_HOVER_COLOR if self.back_to_menu_button_rect.collidepoint(mouse_pos) else BUTTON_COLOR
-        pygame.draw.rect(self.screen, back_button_color, self.back_to_menu_button_rect)
-        back_text_surf = self.small_font.render("Do menu", True, WHITE)
-        self.screen.blit(back_text_surf, back_text_surf.get_rect(center=self.back_to_menu_button_rect.center))
-
-        # Tries left
+        # Tries left (shifted slightly down to make consistent space)
         tries_text = self.font.render(f"Pokusy: {self.tries_left}", True, WHITE)
-        self.screen.blit(tries_text, (panel_rect.x + 20, 300)) # Shifted down
+        self.screen.blit(tries_text, (panel_rect.x + 20, 230)) 
 
-        # Start and Reset buttons
-        self.start_button_rect = pygame.Rect(panel_rect.x + 20, 350, 160, 50) # Shifted down
+        # Start and Reset buttons (shifted slightly down to make consistent space)
+        mouse_pos = pygame.mouse.get_pos()
+        self.start_button_rect = pygame.Rect(panel_rect.x + 20, 280, 160, 50) 
         start_color = BUTTON_HOVER_COLOR if self.start_button_rect.collidepoint(mouse_pos) and self.tries_left > 0 and not self.laser_is_on else BUTTON_COLOR if self.tries_left > 0 and not self.laser_is_on else LOCKED_BUTTON_COLOR
         pygame.draw.rect(self.screen, start_color, self.start_button_rect)
         start_text_surf = self.small_font.render("SPUSTIT LASER", True, WHITE)
         self.screen.blit(start_text_surf, start_text_surf.get_rect(center=self.start_button_rect.center))
         
-        self.reset_button_rect = pygame.Rect(panel_rect.x + 20, 410, 160, 50) # Shifted down
+        self.reset_button_rect = pygame.Rect(panel_rect.x + 20, 340, 160, 50) 
         reset_color = BUTTON_HOVER_COLOR if self.reset_button_rect.collidepoint(mouse_pos) else BUTTON_COLOR
         pygame.draw.rect(self.screen, reset_color, self.reset_button_rect)
         reset_text_surf = self.small_font.render("RESTART", True, WHITE)
@@ -650,20 +662,27 @@ class Game:
         # Game state messages (out of tries, level complete)
         if self.tries_left == 0 and not self.level_complete and not self.laser_is_on:
             lose_text = self.font.render("Došly pokusy!", True, RED)
-            self.screen.blit(lose_text, (panel_rect.x + 20, 470)) # Shifted down
+            self.screen.blit(lose_text, (panel_rect.x + 20, 400)) # Adjusted position
         
         if self.level_complete:
             msg_text = "Level splněn!" if self.current_level_index + 1 < len(LEVELS) else "Vše splněno!"
             button_text = "Další level" if self.current_level_index + 1 < len(LEVELS) else "Do menu"
             
             msg_surf = self.font.render(msg_text, True, GREEN)
-            self.screen.blit(msg_surf, (panel_rect.x + 20, 500)) # Shifted down
+            self.screen.blit(msg_surf, (panel_rect.x + 20, 420)) # Adjusted position
             
-            self.next_level_button_rect = pygame.Rect(panel_rect.x + 20, 520, 160, 50) # Shifted down
+            self.next_level_button_rect = pygame.Rect(panel_rect.x + 20, 450, 160, 50) # Adjusted position
             pygame.draw.rect(self.screen, GREEN, self.next_level_button_rect)
             btn_surf = self.small_font.render(button_text, True, BLACK)
             btn_rect = btn_surf.get_rect(center=self.next_level_button_rect.center)
             self.screen.blit(btn_surf, btn_rect)
+
+        # Back to Menu Button (fixed at the bottom)
+        self.back_to_menu_button_rect = pygame.Rect(panel_rect.x + 20, SCREEN_HEIGHT - 60, 160, 50) # Positioned at the bottom
+        back_button_color = BUTTON_HOVER_COLOR if self.back_to_menu_button_rect.collidepoint(mouse_pos) else BUTTON_COLOR
+        pygame.draw.rect(self.screen, back_button_color, self.back_to_menu_button_rect)
+        back_text_surf = self.small_font.render("Do menu", True, WHITE)
+        self.screen.blit(back_text_surf, back_text_surf.get_rect(center=self.back_to_menu_button_rect.center))
 
 if __name__ == '__main__':
     game = Game()
