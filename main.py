@@ -454,23 +454,19 @@ class Game:
     def main_menu_loop(self):
         self.play_music('menu')
         continue_button = pygame.Rect(SCREEN_WIDTH/2-150, SCREEN_HEIGHT/2-60, 300, 50); select_button = pygame.Rect(SCREEN_WIDTH/2-150, SCREEN_HEIGHT/2, 300, 50); quit_button = pygame.Rect(SCREEN_WIDTH/2-150, SCREEN_HEIGHT/2+60, 300, 50)
-        while self.state == 'main_menu':
+        while self.state == 'main_menu' and self.running: # Add self.running to the condition
             self.screen.fill(DARK_GREY); title_surf = pygame.font.Font(None, 72).render(GAME_TITLE, True, WHITE)
             self.screen.blit(title_surf, title_surf.get_rect(center=(SCREEN_WIDTH/2, SCREEN_HEIGHT/4)))
-            # === TESTOVACÍ BLOK PRO ZOBRAZENÍ JMEN ===
             credits_text = "Tvurci: Tomas S., Benjamin D., Adam V., Nikola D."
-            # Změníme písmo na větší a barvu na jasně červenou
             credits_surf = self.font.render(credits_text, True, RED) 
-            # Změníme pozici doprostřed obrazovky
             credits_rect = credits_surf.get_rect(center=(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 150))
             self.screen.blit(credits_surf, credits_rect)
-            # ==========================================
             mouse_pos = pygame.mouse.get_pos()
             pygame.draw.rect(self.screen, BUTTON_HOVER_COLOR if continue_button.collidepoint(mouse_pos) else BUTTON_COLOR, continue_button); continue_text = self.font.render("Pokračovat", True, WHITE); self.screen.blit(continue_text, continue_text.get_rect(center=continue_button.center))
             pygame.draw.rect(self.screen, BUTTON_HOVER_COLOR if select_button.collidepoint(mouse_pos) else BUTTON_COLOR, select_button); select_text = self.font.render("Výběr úrovně", True, WHITE); self.screen.blit(select_text, select_text.get_rect(center=select_button.center))
             pygame.draw.rect(self.screen, BUTTON_HOVER_COLOR if quit_button.collidepoint(mouse_pos) else BUTTON_COLOR, quit_button); quit_text = self.font.render("Konec", True, WHITE); self.screen.blit(quit_text, quit_text.get_rect(center=quit_button.center))
             for event in pygame.event.get():
-                if event.type == pygame.QUIT: self.running = False; self.state = 'quit'
+                if event.type == pygame.QUIT: self.running = False; self.state = 'quit' # Ensure state is also set to 'quit'
                 if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     if continue_button.collidepoint(mouse_pos):
                         self.current_level_index = min(self.highest_unlocked_level - 1, len(LEVELS) - 1); self.load_level(self.current_level_index); self.state = 'in_game'
@@ -483,7 +479,7 @@ class Game:
         start_x = (SCREEN_WIDTH - (cols*btn_width + (cols-1)*spacing))/2; start_y = (SCREEN_HEIGHT - (rows*btn_height + (rows-1)*spacing))/2
         level_buttons = [pygame.Rect(start_x + (i % cols)*(btn_width+spacing), start_y + (i // cols)*(btn_height+spacing), btn_width, btn_height) for i in range(len(LEVELS))]
         back_button = pygame.Rect(20, SCREEN_HEIGHT - 70, 150, 50)
-        while self.state == 'level_select':
+        while self.state == 'level_select' and self.running: # Add self.running to the condition
             self.screen.fill(DARK_GREY); title_surf = self.font.render("Výběr úrovně", True, WHITE); self.screen.blit(title_surf, title_surf.get_rect(center=(SCREEN_WIDTH/2, 50)))
             mouse_pos = pygame.mouse.get_pos()
             for i, rect in enumerate(level_buttons):
@@ -494,7 +490,7 @@ class Game:
             pygame.draw.rect(self.screen, BUTTON_HOVER_COLOR if back_button.collidepoint(mouse_pos) else BUTTON_COLOR, back_button)
             back_text = self.font.render("Zpět", True, WHITE); self.screen.blit(back_text, back_text.get_rect(center=back_button.center))
             for event in pygame.event.get():
-                if event.type == pygame.QUIT: self.running = False; self.state = 'quit'
+                if event.type == pygame.QUIT: self.running = False; self.state = 'quit' # Ensure state is also set to 'quit'
                 if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     if back_button.collidepoint(mouse_pos): self.state = 'main_menu'
                     for i, rect in enumerate(level_buttons):
@@ -502,16 +498,31 @@ class Game:
             pygame.display.flip(); self.clock.tick(FPS)
             
     def game_loop(self):
-        while self.state == 'in_game':
+        while self.state == 'in_game' and self.running: # Add self.running to the condition
             self.events(); self.update(); self.draw()
 
     def events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT: self.running = False
+            
+            # Rotation with 'R' key
             if event.type == pygame.KEYDOWN and event.key == pygame.K_r:
                 mouse_pos = pygame.mouse.get_pos()
                 for sprite in self.all_sprites:
-                    if isinstance(sprite, (Mirror, BeamSplitter)) and sprite.rect.collidepoint(mouse_pos): sprite.rotate(); break
+                    # Check if the mouse is over a rotatable item (Mirror or BeamSplitter)
+                    if isinstance(sprite, (Mirror, BeamSplitter)) and sprite.rect.collidepoint(mouse_pos):
+                        sprite.rotate()
+                        break # Stop after rotating one sprite
+
+            # Rotation with right mouse click
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 3: # 3 is for right-click
+                pos = event.pos # Use event.pos directly as it's the click position
+                for sprite in self.all_sprites:
+                    # Check if the right-click was on a rotatable item (Mirror or BeamSplitter)
+                    if isinstance(sprite, (Mirror, BeamSplitter)) and sprite.rect.collidepoint(pos):
+                        sprite.rotate()
+                        break # Stop after rotating one sprite
+
             if event.type == pygame.MOUSEBUTTONDOWN:
                 pos = event.pos
                 if self.level_complete:
@@ -530,14 +541,23 @@ class Game:
                     if hasattr(self, 'mirror_icon_rect') and self.mirror_icon_rect.collidepoint(pos): self.selected_item = 'mirror'
                     if hasattr(self, 'splitter_icon_rect') and self.splitter_icon_rect.collidepoint(pos): self.selected_item = 'splitter'
                     return
+                # This part handles placing items with left click (button == 1)
                 if event.button == 1:
                     grid_x, grid_y = pos[0] // TILE_SIZE, pos[1] // TILE_SIZE
                     clicked_sprite = next((s for s in self.all_sprites if s.rect.collidepoint(pos)), None)
                     if clicked_sprite is None:
                         if self.selected_item == 'mirror' and self.placeable_mirrors_count > 0:
-                            self.all_sprites.add(Mirror(grid_x * TILE_SIZE, grid_y * TILE_SIZE, True)); self.placeable_mirrors_count -= 1
+                            # Ensure you're not placing on a non-empty tile
+                            existing_sprite = next((s for s in self.all_sprites if s.rect.topleft == (grid_x * TILE_SIZE, grid_y * TILE_SIZE)), None)
+                            if existing_sprite is None:
+                                self.all_sprites.add(Mirror(grid_x * TILE_SIZE, grid_y * Tile_SIZE, True))
+                                self.placeable_mirrors_count -= 1
                         elif self.selected_item == 'splitter' and self.placeable_splitters_count > 0:
-                            self.all_sprites.add(BeamSplitter(grid_x * TILE_SIZE, grid_y * TILE_SIZE, True)); self.placeable_splitters_count -= 1
+                            # Ensure you're not placing on a non-empty tile
+                            existing_sprite = next((s for s in self.all_sprites if s.rect.topleft == (grid_x * TILE_SIZE, grid_y * TILE_SIZE)), None)
+                            if existing_sprite is None:
+                                self.all_sprites.add(BeamSplitter(grid_x * TILE_SIZE, grid_y * TILE_SIZE, True))
+                                self.placeable_splitters_count -= 1
     
     def update(self):
         if self.laser_is_on:
