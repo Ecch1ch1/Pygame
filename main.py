@@ -70,7 +70,7 @@ W T           W
 W             W
 W      S      W
 W             W
-W T           W
+W             W
 W             W
 W             W
 W             W
@@ -78,7 +78,7 @@ W             W
 W             W
 WWWWWWWWWWWWWWW"""}
 
-LEVEL_5 = {"mirrors": 1, "splitters": 0, "layout": """
+LEVEL_5 = {"mirrors": 2, "splitters": 0, "layout": """
 WWWWWWWWWWWWWWW
 W S           W
 W             W
@@ -92,13 +92,13 @@ W             W
 W             W
 WWWWWWWWWWWWWWW"""}
 
-LEVEL_6 = {"mirrors": 3, "splitters": 0, "layout": """
+LEVEL_6 = {"mirrors": 4, "splitters": 0, "layout": """
 WWWWWWWWWWWWWWW
 W           T W
 W WWW WWWWW WWW
 W W W W   W W W
 W W W W S W W W
-W W W WWWWW W W
+W W W WWW W W W
 W W W       W W
 W WWWWWWWWWWW W
 W             W
@@ -112,7 +112,7 @@ WS            W
 WWWWWWWWWWWWW W
 W             W
 W WWWWWWWWWWWWW
-W W         T W
+W           T W
 W WWWWWWWWWWWWW
 W             W
 WWWWWWWWWWWWW W
@@ -136,7 +136,7 @@ WWWWWWWWWWWWWWW"""}
 
 LEVEL_9 = {"mirrors": 2, "splitters": 0, "layout": """
 WWWWWWWWWWWWWWW
-W S         T W
+W S           W
 W WWWWWWWWWWW W
 W W           W
 W W T         W
@@ -148,35 +148,35 @@ W             W
 W             W
 WWWWWWWWWWWWWWW"""}
 
-LEVEL_10 = {"mirrors": 4, "splitters": 0, "layout": """
+LEVEL_10 = {"mirrors": 2, "splitters": 1, "layout": """
 WWWWWWWWWWWWWWW
-W T W   S   W W
+W WTW   S   W W
 W W W WWWWW W W
 W W W W     W W
 W W   W     W W
-W WWWWW     W W
+W W WWW     W W
 W   W       W W
 W W W       W W
-W W WWWWWWWWW W
+W W WWWWWWW W W
 W W         T W
 W             W
 WWWWWWWWWWWWWWW"""}
 
 LEVEL_11 = {"mirrors": 0, "splitters": 0, "layout": """
 WWWWWWWWWWWWWWW
-W S M       T W
+W S  M      TMW
 W W W W W W W W
 W  M M M M M  W
 W W W W W W W W
 W M M M M M M W
 W W W W W W W W
-W  M M M M M  W
+W  M M M M M MW
 W W W W W W W W
 W M M M M M M W
 W             W
 WWWWWWWWWWWWWWW"""}
 
-LEVEL_12 = {"mirrors": 3, "splitters": 0, "layout": """
+LEVEL_12 = {"mirrors": 4, "splitters": 0, "layout": """
 WWWWWWWWWWWWWWW
 W S         W T
 W W           W
@@ -190,11 +190,11 @@ W           W W
 W             W
 WWWWWWWWWWWWWWW"""}
 
-LEVEL_13 = {"mirrors": 6, "splitters": 0, "layout": """
+LEVEL_13 = {"mirrors": 4, "splitters": 1, "layout": """
 WWWWWWWWWWWWWWW
-WS T          W
+WS           TW
 W W           W
-W WWWWWWWWWWWWWW
+W WWWWWWWWWW WWW
 W            W
 WWWWWWWWWWWW W
 W            W
@@ -204,7 +204,7 @@ W WWWWWWWWWW W
 W T          W
 WWWWWWWWWWWWWWW"""}
 
-LEVEL_14 = {"mirrors": 4, "splitters": 0, "layout": """
+LEVEL_14 = {"mirrors": 0, "splitters": 3, "layout": """
 WWWWWWWWWWWWWWW
 W T         T W
 W             W
@@ -218,7 +218,7 @@ W             W
 W             W
 WWWWWWWWWWWWWWW"""}
 
-LEVEL_15 = {"mirrors": 2, "splitters": 1, "layout": """
+LEVEL_15 = {"mirrors": 0, "splitters": 2, "layout": """
 WWWWWWWWWWWWWWW
 W T         T W
 W W           W
@@ -232,7 +232,7 @@ W WWWWW   W   W
 W         W   W
 WWWWWWWWWWWWWWW"""}
 
-LEVEL_16 = {"mirrors": 3, "splitters": 0, "layout": """
+LEVEL_16 = {"mirrors": 4, "splitters": 1, "layout": """
 WWWWWWWWWWWWWWW
 WS    W    M  W
 W WWW W WWWWW W
@@ -240,7 +240,7 @@ W   W W W   W W
 WWW W W W W WWW
 W T W W W W   W
 W WWW W WWW WWW
-W W   W W W   W
+W     W W W   W
 W WWWWW W WWWWW
 W      T      W
 W             W
@@ -262,8 +262,8 @@ WWWWWWWWWWWWWWW"""}
 
 LEVEL_18 = {"mirrors": 4, "splitters": 1, "layout": """
 WWWWWWWWWWWWWWW
-W S   B     T W
-W             W
+W           T W
+W S   B       W
 W             W
 W             W
 W             W
@@ -282,13 +282,13 @@ W S         W W
 W WWWWWWWWWWW W
 W W         W W
 W W WWWWWWWWWWW
-W W         T W
+W W           W
 W WWWWWWWWWWW W
 W W           W
 W W           W
 WWWWWWWWWWWWWWW"""}
 
-LEVEL_20 = {"mirrors": 0, "splitters": 0, "layout": """
+LEVEL_20 = {"mirrors": 3, "splitters": 0, "layout": """
 WWWWWWWWWWWWWWW
 WS M M M M M MTW
 W             W
