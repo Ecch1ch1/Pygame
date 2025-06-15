@@ -22,7 +22,7 @@ LOCKED_BUTTON_COLOR = (50, 50, 50); SELECTED_ITEM_COLOR = (150, 150, 100)
 # === ZMĚNA: Přehledná definice levelů pro snadnou editaci ===
 # ===================================================================================
 
-LEVEL_1 = {"mirrors": 1, "splitters": 0, "layout": """
+LEVEL_1 = {"mirrors": 0, "splitters": 0, "layout": """
 WWWWWWWWWWWWWWW
 W             W
 W S         T W
@@ -36,10 +36,10 @@ W             W
 W             W
 WWWWWWWWWWWWWWW"""}
 
-LEVEL_2 = {"mirrors": 1, "splitters": 0, "layout": """
+LEVEL_2 = {"mirrors": 0, "splitters": 0, "layout": """
 WWWWWWWWWWWWWWW
 W             W
-W S           W
+W S         M W
 W             W
 W           T W
 W             W
@@ -53,12 +53,12 @@ WWWWWWWWWWWWWWW"""}
 LEVEL_3 = {"mirrors": 3, "splitters": 0, "layout": """
 WWWWWWWWWWWWWWW
 W             W
-W S   WWWW    W
-W     W  W    W
-W     W  W  T W
-W     W  W    W
+W S           W
 W     WWWW    W
-W             W
+W     WWWW  T W
+W     WWWW    W
+W     WWWW    W
+W     WWWW    W
 W             W
 W             W
 W             W
@@ -67,60 +67,60 @@ WWWWWWWWWWWWWWW"""}
 LEVEL_4 = {"mirrors": 2, "splitters": 0, "layout": """
 WWWWWWWWWWWWWWW
 W T           W
-W             W
-W      S      W
-W             W
-W             W
-W             W
-W             W
-W             W
-W             W
+W WWWWW    WW W
+W WWWWWS   WW W
+W WWWWW    WW W
+W WWWWW    WW W
+W WWWWW    WW W
+W WWWWW    WW W
+W WWWWW    WW W
+W WWWWW    WW W
 W             W
 WWWWWWWWWWWWWWW"""}
 
 LEVEL_5 = {"mirrors": 2, "splitters": 0, "layout": """
 WWWWWWWWWWWWWWW
-W S           W
-W             W
-W           M W
-W             W
-W             W
-W T           W
-W             W
-W             W
-W             W
-W             W
+WWS           W
+WWWWWWWWWWW   W
+WW          M W
+WW WWWWWWWWWWWW
+WWTWWWWWWWWWWWW
+WW            W
+WW            W
+WW            W
+WW            W
+WW            W
 WWWWWWWWWWWWWWW"""}
 
-LEVEL_6 = {"mirrors": 4, "splitters": 0, "layout": """
+LEVEL_6 = {"mirrors": 8, "splitters": 0, "layout": """
 WWWWWWWWWWWWWWW
-W           T W
-W WWW WWWWW WWW
+W     W     T W
+W WWW WWWWW W W
 W W W W   W W W
 W W W W S W W W
 W W W WWW W W W
-W W W       W W
+W W W     W W W
 W WWWWWWWWWWW W
 W             W
 W             W
 W             W
 WWWWWWWWWWWWWWW"""}
 
-LEVEL_7 = {"mirrors": 4, "splitters": 0, "layout": """
+LEVEL_7 = {"mirrors": 6, "splitters": 0, "layout": """
 WWWWWWWWWWWWWWW
 WS            W
 WWWWWWWWWWWWW W
 W             W
 W WWWWWWWWWWWWW
-W           T W
-W WWWWWWWWWWWWW
+W         W T W
+W WWWWWWWWW WWW
 W             W
 WWWWWWWWWWWWW W
 W             W
 W             W
 WWWWWWWWWWWWWWW"""}
 
-LEVEL_8 = {"mirrors": 5, "splitters": 0, "layout": """
+LEVEL_8 = {"mirrors": 4, "splitters": 0, "layout": """
 WWWWWWWWWWWWWWW
 W S         W W
 W W         W W
@@ -134,13 +134,13 @@ W W       W   W
 W WWWWWWWWWWWWW
 WWWWWWWWWWWWWWW"""}
 
-LEVEL_9 = {"mirrors": 2, "splitters": 0, "layout": """
+LEVEL_9 = {"mirrors": 9, "splitters": 0, "layout": """
 WWWWWWWWWWWWWWW
 W S           W
 W WWWWWWWWWWW W
-W W           W
-W W T         W
-W W           W
+W WW   WW   W W
+W WWTW WW W   W
+W WW W    WWW W
 W WWWWWWWWWWW W
 W             W
 W             W
@@ -151,14 +151,14 @@ WWWWWWWWWWWWWWW"""}
 LEVEL_10 = {"mirrors": 2, "splitters": 1, "layout": """
 WWWWWWWWWWWWWWW
 W WTW   S   W W
-W W W WWWWW W W
-W W W W     W W
-W W   W     W W
-W W WWW     W W
-W   W       W W
-W W W       W W
 W W WWWWWWW W W
-W W         T W
+W W WWW     W W
+W W WWW     W W
+W W WWW     W W
+W W         W W
+W W         W W
+W W WWWWWWW W W
+W           T W
 W             W
 WWWWWWWWWWWWWWW"""}
 
@@ -176,14 +176,14 @@ W M M M M M M W
 W             W
 WWWWWWWWWWWWWWW"""}
 
-LEVEL_12 = {"mirrors": 4, "splitters": 0, "layout": """
+LEVEL_12 = {"mirrors": 11, "splitters": 1, "layout": """
 WWWWWWWWWWWWWWW
 W S         W T
 W W           W
-W WWWWWWWWWWWWW
+W WWWWWWWW WWWW
 W             W
 WWWWWWWWWWWWW W
-W           W W
+W          TW W
 W           W W
 W           W W
 W           W W
@@ -218,37 +218,37 @@ W             W
 W             W
 WWWWWWWWWWWWWWW"""}
 
-LEVEL_15 = {"mirrors": 0, "splitters": 2, "layout": """
+LEVEL_15 = {"mirrors": 13, "splitters": 2, "layout": """
 WWWWWWWWWWWWWWW
-W T         T W
+W          WT W
 W W           W
 W S     B     W
 W W           W
-W T         T W
+W T W         W
 W WWWWWWWWWWW W
 W W           W
-W W   WWWWW   W
-W WWWWW   W   W
+W WT  WWWWW   W
+W WWWWW  TW   W
 W         W   W
 WWWWWWWWWWWWWWW"""}
 
-LEVEL_16 = {"mirrors": 4, "splitters": 1, "layout": """
+LEVEL_16 = {"mirrors": 7, "splitters": 1, "layout": """
 WWWWWWWWWWWWWWW
-WS    W    M  W
-W WWW W WWWWW W
+WS    W       W
+W WWW W WWWWWTW
 W   W W W   W W
 WWW W W W W WWW
 W T W W W W   W
 W WWW W WWW WWW
 W     W W W   W
 W WWWWW W WWWWW
-W      T      W
+W             W
 W             W
 WWWWWWWWWWWWWWW"""}
 
-LEVEL_17 = {"mirrors": 0, "splitters": 0, "layout": """
+LEVEL_17 = {"mirrors": 2, "splitters": 0, "layout": """
 WWWWWWWWWWWWWWW
-W S         T W
+W S   WWW   T W
 W M M M M M M W
 W             W
 W M M M M M M W
@@ -260,31 +260,31 @@ W             W
 W             W
 WWWWWWWWWWWWWWW"""}
 
-LEVEL_18 = {"mirrors": 4, "splitters": 1, "layout": """
+LEVEL_18 = {"mirrors": 6, "splitters": 0, "layout": """
 WWWWWWWWWWWWWWW
 W           T W
 W S   B       W
 W             W
 W             W
 W             W
+W    WWWWWWWWWW
 W             W
 W             W
-W             W
-W             W
+WWWWW         W
 W T           W
 WWWWWWWWWWWWWWW"""}
 
-LEVEL_19 = {"mirrors": 5, "splitters": 0, "layout": """
+LEVEL_19 = {"mirrors": 6, "splitters": 0, "layout": """
 WWWWWWWWWWWWWWW
-W T         W W
-WWWWWWWWWWW W W
-W S         W W
+W           WWW
+W WWWWWWWWW WWW
+W S         WWW
+W WWWWWWWWW WWW
+W WW        WWW
+W WWWWWWWWWWWWW
+W             W
 W WWWWWWWWWWW W
-W W         W W
-W W WWWWWWWWWWW
-W W           W
-W WWWWWWWWWWW W
-W W           W
+W WT          W
 W W           W
 WWWWWWWWWWWWWWW"""}
 
